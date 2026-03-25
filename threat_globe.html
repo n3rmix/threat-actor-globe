@@ -60,6 +60,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 
 .sidebar-header{padding:18px 14px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
 .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:3px}
+#reset-btn{
+  margin-left:auto;padding:3px 8px;
+  font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-dim);background:transparent;
+  border:1px solid var(--border);border-radius:2px;
+  cursor:pointer;transition:color 0.15s,border-color 0.15s;flex-shrink:0;
+}
+#reset-btn:hover{color:var(--neon);border-color:rgba(0,255,229,0.35)}
 .logo-icon{width:26px;height:26px;flex-shrink:0}
 .app-title{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--neon)}
 .app-subtitle{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:1px}
@@ -340,26 +348,29 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   border-color:rgba(255,60,60,0.6);
   box-shadow:0 0 10px rgba(255,60,60,0.2);
 }
-.mitre-search{
-  background:rgba(0,255,229,0.05);
-  border:1px solid rgba(0,255,229,0.2);
-  color:var(--text-dim);
+.mitre-search,.misp-search{
+  background:rgba(167,139,250,0.08);
+  border:1px solid rgba(167,139,250,0.3);
+  color:#a78bfa;
 }
-.mitre-search:hover{
-  background:rgba(0,255,229,0.1);
-  border-color:rgba(0,255,229,0.4);
-  color:var(--neon);
+.mitre-search:hover,.misp-search:hover{
+  background:rgba(167,139,250,0.16);
+  border-color:rgba(167,139,250,0.55);
+  color:#c4b5fd;
 }
-.mitre-full-link{
+.mitre-full-link,.web-full-link{
   display:flex;align-items:center;gap:8px;
   padding:12px 14px;
-  background:rgba(255,60,60,0.06);
-  border:1px solid rgba(255,60,60,0.2);
   border-radius:3px;
-  text-decoration:none;color:#ff8a8a;
+  text-decoration:none;
   font-size:12px;font-family:var(--sans);
   transition:all 0.15s;margin-top:4px;
   line-height:1.4;
+}
+.mitre-full-link{
+  background:rgba(255,60,60,0.06);
+  border:1px solid rgba(255,60,60,0.2);
+  color:#ff8a8a;
 }
 .mitre-full-link:hover{
   background:rgba(255,60,60,0.12);
@@ -369,6 +380,181 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 }
 .mitre-full-link svg{flex-shrink:0;color:#ff6b6b}
 .mitre-full-link strong{color:#ff6b6b}
+.misp-full-link{
+  background:rgba(234,159,61,0.06);
+  border:1px solid rgba(234,159,61,0.22);
+  color:#e8a849;
+}
+.misp-full-link:hover{
+  background:rgba(167,139,250,0.13);
+  border-color:rgba(167,139,250,0.45);
+  color:#c4b5fd;
+  box-shadow:0 0 16px rgba(167,139,250,0.12);
+}
+.misp-full-link svg{flex-shrink:0;color:#a78bfa}
+.misp-full-link strong{color:#c4b5fd}
+
+/* ── VIEW TOGGLE ── */
+#view-toggle{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  z-index:150;display:flex;align-items:center;
+  background:rgba(0,8,12,0.88);
+  border:1px solid var(--border);border-radius:3px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  overflow:hidden;
+}
+.vt-btn{
+  padding:7px 20px;
+  font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-dim);background:transparent;border:none;cursor:pointer;
+  transition:color 0.15s,background 0.15s;
+}
+.vt-btn.active{
+  color:var(--neon);background:rgba(0,255,229,0.07);
+  box-shadow:inset 0 0 12px rgba(0,255,229,0.04);
+}
+.vt-btn:hover:not(.active){color:var(--text)}
+.vt-sep{width:1px;background:var(--border);align-self:stretch}
+
+/* ── MATRIX PANEL ── */
+#matrix-panel{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  z-index:10;
+  background:rgba(0,5,8,0.97);
+  display:none;flex-direction:column;
+  overflow:hidden;
+  padding-left:var(--sidebar-width);
+}
+#matrix-panel::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,229,0.008) 3px,rgba(0,255,229,0.008) 4px);
+  pointer-events:none;z-index:0;
+}
+#matrix-inner{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;
+  height:100%;overflow:hidden;
+  padding:52px 28px 0;
+}
+
+/* Heatmap */
+#heatmap-wrap{flex-shrink:0;overflow-x:auto;padding-bottom:16px}
+.hm-table{border-collapse:collapse;font-family:var(--mono);width:100%}
+.hm-table th{
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-dim);padding:7px 16px;text-align:center;
+  border:1px solid var(--border);cursor:pointer;
+  transition:color 0.15s,border-color 0.15s;white-space:nowrap;
+  background:rgba(0,5,8,0.6);
+}
+.hm-table th:first-child{text-align:left;min-width:170px;cursor:default}
+.hm-table th:hover:not(:first-child){color:var(--neon)}
+.hm-table th.hm-col-active{color:var(--neon);border-color:rgba(0,255,229,0.3)}
+.hm-row-lbl{
+  font-size:11px;color:var(--text);padding:7px 12px 7px 10px;
+  border:1px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:background 0.1s,border-color 0.15s;white-space:nowrap;
+}
+.hm-row-lbl:hover{background:rgba(0,255,229,0.04)}
+.hm-row-lbl.hm-row-active{color:var(--neon);border-color:rgba(0,255,229,0.3)}
+.hm-total{
+  margin-left:auto;padding:1px 6px;border-radius:2px;
+  font-size:9px;color:var(--text-dim);border:1px solid var(--border);
+}
+.hm-cell{
+  text-align:center;padding:7px 16px;
+  font-size:12px;font-family:var(--mono);
+  border:1px solid var(--border);cursor:pointer;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  min-width:90px;user-select:none;
+}
+.hm-cell:hover{border-color:rgba(0,255,229,0.35);box-shadow:inset 0 0 10px rgba(0,255,229,0.08)}
+.hm-cell.hm-cell-active{border-color:var(--neon)!important;box-shadow:inset 0 0 12px rgba(0,255,229,0.15)!important}
+.hm-cell-zero{color:rgba(0,255,229,0.18)}
+
+/* Actor table */
+#actor-table-wrap{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+  border-top:1px solid var(--border);margin-top:4px;
+}
+#at-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0 6px;flex-shrink:0;
+}
+#at-count{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:0.5px}
+#at-filter-badge{
+  font-family:var(--mono);font-size:9px;color:var(--neon);
+  padding:2px 9px;border:1px solid rgba(0,255,229,0.25);border-radius:2px;
+  cursor:pointer;transition:all 0.15s;display:none;
+}
+#at-filter-badge:hover{background:rgba(0,255,229,0.07)}
+.at-table-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,255,229,0.1) transparent}
+.at-table-scroll::-webkit-scrollbar{width:3px}
+.at-table-scroll::-webkit-scrollbar-thumb{background:rgba(0,255,229,0.15);border-radius:2px}
+.at-table{width:100%;border-collapse:collapse;font-family:var(--mono)}
+.at-table thead th{
+  position:sticky;top:0;
+  background:#000508;
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-dim);padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:left;cursor:pointer;white-space:nowrap;
+  user-select:none;z-index:2;transition:color 0.15s;
+}
+.at-table thead th:last-child{cursor:default}
+.at-table thead th:hover:not(:last-child){color:var(--neon)}
+.at-table thead th.sort-active{color:var(--neon)}
+.sort-arrow{margin-left:3px;opacity:0.8}
+.at-table tbody tr{
+  border-bottom:1px solid rgba(0,255,229,0.04);
+  cursor:pointer;transition:background 0.08s;
+}
+.at-table tbody tr:hover{background:rgba(0,255,229,0.05)}
+.at-table tbody td{padding:8px 12px;font-size:11px;color:var(--text);vertical-align:middle}
+.at-country-cell{display:flex;align-items:center;gap:6px}
+.at-cat-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:2px 8px;border-radius:2px;font-size:9px;
+  border:1px solid rgba(255,255,255,0.08);letter-spacing:0.3px;
+}
+.at-mitre{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;font-size:9px;border-radius:2px;
+  text-decoration:none;font-family:var(--mono);transition:all 0.12s;
+}
+.at-mitre-direct{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.25);color:#ff7070}
+.at-mitre-direct:hover{background:rgba(255,60,60,0.15);border-color:rgba(255,60,60,0.5)}
+.at-mitre-search{background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.28);color:#a78bfa}
+.at-mitre-search:hover{color:#c4b5fd;border-color:rgba(167,139,250,0.5)}
+
+@media(max-width:768px){
+  #view-toggle{top:52px}
+  #matrix-panel{padding-left:0}
+  #matrix-inner{padding:96px 12px 0}
+  .hm-cell{min-width:60px;padding:6px 8px}
+}
+
+/* ── SECTOR FILTER ── */
+.sect-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;margin-bottom:2px}
+.sect-chip{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:3px 8px;border-radius:2px;font-size:9px;
+  font-family:var(--mono);letter-spacing:0.4px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-dim);cursor:pointer;
+  transition:color 0.15s,border-color 0.15s,background 0.15s;
+  user-select:none;
+}
+.sect-chip:hover{color:var(--text);border-color:rgba(0,255,229,0.22)}
+.sect-chip.active{
+  color:var(--neon);border-color:rgba(0,255,229,0.5);
+  background:rgba(0,255,229,0.07);
+}
+
+/* Arc toggle — only visible in globe mode */
+#vt-arcs{display:none}
+#vt-arcs.arc-visible{display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
@@ -390,6 +576,41 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
 
+<!-- View Toggle -->
+<div id="view-toggle">
+  <button class="vt-btn active" id="vt-globe">Globe</button>
+  <div class="vt-sep"></div>
+  <button class="vt-btn" id="vt-matrix">Matrix</button>
+  <div class="vt-sep" id="vt-sep-arcs"></div>
+  <button class="vt-btn" id="vt-arcs">⌒ Arcs</button>
+</div>
+
+<!-- Matrix Panel -->
+<div id="matrix-panel">
+  <div id="matrix-inner">
+    <div id="heatmap-wrap"></div>
+    <div id="actor-table-wrap">
+      <div id="at-header">
+        <span id="at-count"></span>
+        <span id="at-filter-badge"></span>
+      </div>
+      <div class="at-table-scroll">
+        <table class="at-table">
+          <thead>
+            <tr>
+              <th data-col="name">Name <span class="sort-arrow"></span></th>
+              <th data-col="country">Country <span class="sort-arrow"></span></th>
+              <th data-col="category">Category <span class="sort-arrow"></span></th>
+              <th data-col="mitre">MITRE</th>
+            </tr>
+          </thead>
+          <tbody id="actor-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- LEFT SIDEBAR -->
 <div id="sidebar">
   <div class="sidebar-header">
@@ -404,6 +625,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
         <line x1="20" y1="3" x2="14" y2="2" stroke="#00ffe5" stroke-width="0.6" opacity="0.4" stroke-dasharray="1 2"/>
       </svg>
       <span class="app-title">Threat Actor Globe</span>
+      <button id="reset-btn" title="Reset all filters">Reset</button>
     </div>
     <div class="app-subtitle">Interactive Threat Intelligence Map</div>
   </div>
@@ -414,6 +636,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
     </div>
     <div class="fsec" id="cat-filters"><div class="fsec-label">Category</div></div>
     <div class="fsec" id="cty-filters"><div class="fsec-label">Country of Origin</div></div>
+    <div class="fsec" id="sect-filters"><div class="fsec-label">Target Sector</div><div class="sect-grid" id="sect-grid"></div></div>
   </div>
   <div class="stats-foot" id="stats-foot"></div>
 </div>
@@ -428,11 +651,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 
 <!-- Satellite legend -->
 <div id="legend-sat">
-  <div class="leg-row"><div class="sat-icon"></div><span>Unknown origin = orbiting satellite</span></div>
-  <div class="leg-row" style="gap:5px;padding-left:1px">
-    <span style="color:#00ffe5;font-size:11px">○</span><span>APT</span>
-    <span style="color:#00ffe5;font-size:11px;margin-left:6px">⬡</span><span>Ransomware</span>
-    <span style="color:#00ffe5;font-size:11px;margin-left:6px">◆</span><span>Influence</span>
+  <div class="leg-row">
+    <div style="width:10px;height:10px;border:1.5px solid #ff6060;border-radius:50%;background:rgba(255,96,96,0.25);box-shadow:0 0 5px #ff6060;flex-shrink:0"></div>
+    <span>Nation-state cluster — click to list actors</span>
+  </div>
+  <div class="leg-row">
+    <div class="sat-icon"></div>
+    <span>Unattributed cluster — click to list</span>
   </div>
 </div>
 
@@ -491,12 +716,15 @@ const MITRE_IDS = {
   'Evilnum':'G0120'
 };
 
-function getMitreUrl(actorName) {
+function getMispUrl(actorName){
+  const anchor = actorName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  return `https://misp-galaxy.org/threat-actor/#${anchor}`;
+}
+
+function getMitreUrl(actorName, category) {
   const id = MITRE_IDS[actorName];
   if (id) return { url: `https://attack.mitre.org/groups/${id}/`, label: `ATT&CK ${id}`, direct: true };
-  // Fallback: search URL with encoded actor name
-  const q = encodeURIComponent(actorName);
-  return { url: `https://attack.mitre.org/search/?query=${q}`, label: 'Search ATT&CK', direct: false };
+  return { url: getMispUrl(actorName), label: 'MISP Galaxy', direct: false };
 }
 
 
@@ -509,6 +737,209 @@ let selCtries=new Set();
 let searchQ='';
 let globe=null;
 let interTimer=null;
+let currentView='globe';
+let matrixFilter={country:null,category:null};
+let tableSort={col:'country',dir:1};
+let selSectors=new Set();
+let arcsOn=false;
+const CATS=['APT','Ransomware','Crimeware','Hacktivist','Influence'];
+
+const SECTORS=[
+  {id:'Government',icon:'🏛'},{id:'Defense',icon:'🛡'},{id:'Energy',icon:'⚡'},
+  {id:'Finance',icon:'💳'},{id:'Technology',icon:'💻'},{id:'Healthcare',icon:'🏥'},
+  {id:'Critical Infrastructure',icon:'⚙'},{id:'Telecom',icon:'📡'},{id:'Media',icon:'📰'},
+];
+
+const COUNTRY_ARCS={
+  Russia:[
+    {target:'Ukraine',lat:50.45,lng:30.52},{target:'USA',lat:38.90,lng:-77.04},
+    {target:'Germany',lat:52.52,lng:13.40},{target:'UK',lat:51.51,lng:-0.13},
+    {target:'NATO / Baltics',lat:56.95,lng:24.11},{target:'Georgia',lat:41.69,lng:44.83},
+  ],
+  China:[
+    {target:'USA',lat:38.90,lng:-77.04},{target:'Taiwan',lat:25.03,lng:121.56},
+    {target:'Japan',lat:35.68,lng:139.69},{target:'India',lat:28.61,lng:77.21},
+    {target:'SE Asia',lat:13.75,lng:100.50},{target:'Australia',lat:-33.87,lng:151.21},
+  ],
+  Iran:[
+    {target:'Israel',lat:31.78,lng:35.22},{target:'Saudi Arabia',lat:24.69,lng:46.72},
+    {target:'USA',lat:38.90,lng:-77.04},{target:'UAE',lat:24.47,lng:54.37},
+    {target:'Iraq',lat:33.34,lng:44.40},
+  ],
+  'North Korea':[
+    {target:'South Korea',lat:37.57,lng:126.98},{target:'USA',lat:38.90,lng:-77.04},
+    {target:'Japan',lat:35.68,lng:139.69},{target:'Financial systems',lat:51.51,lng:-0.13},
+  ],
+  India:[
+    {target:'Pakistan',lat:33.72,lng:73.06},{target:'China',lat:39.91,lng:116.39},
+  ],
+  Israel:[
+    {target:'Iran',lat:35.69,lng:51.42},{target:'Lebanon',lat:33.89,lng:35.50},
+    {target:'Gulf states',lat:24.69,lng:46.72},
+  ],
+  Turkey:[
+    {target:'Middle East',lat:33.33,lng:44.40},{target:'Europe',lat:48.85,lng:2.35},
+    {target:'N. Africa',lat:30.80,lng:20.00},
+  ],
+  Belarus:[
+    {target:'Ukraine',lat:50.45,lng:30.52},{target:'Poland',lat:52.23,lng:21.01},
+    {target:'EU',lat:50.85,lng:4.35},
+  ],
+  Lebanon:[
+    {target:'Israel',lat:31.78,lng:35.22},{target:'Middle East',lat:24.69,lng:46.72},
+  ],
+  UAE:[{target:'Gulf states',lat:24.69,lng:46.72},{target:'N. Africa',lat:30.80,lng:20.00}],
+  Pakistan:[{target:'India',lat:28.61,lng:77.21},{target:'Afghanistan',lat:34.53,lng:69.17}],
+  'South Korea':[{target:'North Korea',lat:39.03,lng:125.75}],
+  Palestine:[{target:'Israel',lat:31.78,lng:35.22},{target:'Middle East',lat:24.69,lng:46.72}],
+  Malaysia:[{target:'SE Asia',lat:13.75,lng:100.50},{target:'Hong Kong',lat:22.30,lng:114.18}],
+};
+
+const ACTOR_SECTORS={
+  'Sandworm':['Energy','Critical Infrastructure','Government'],
+  'Sednit':['Government','Defense','Media'],
+  'The Dukes':['Government','Defense'],
+  'Turla':['Government','Defense','Telecom'],
+  'Gamaredon':['Government','Defense'],
+  'Callisto':['Government','Defense'],
+  'InvisiMole':['Government','Defense'],
+  'Cloud Atlas':['Government','Defense'],
+  'XDSpy':['Government','Finance'],
+  'Attor':['Government'],
+  'Buhtrap':['Finance'],
+  'SaintBear':['Government'],
+  'SturgeonPhisher':['Government','Energy'],
+  'Winter Vivern':['Government'],
+  'FrostyNeighbor':['Government','Critical Infrastructure'],
+  'UAC-0099':['Government','Defense'],
+  'Operation Texonto':['Government','Media'],
+  'Ebury':['Finance','Telecom'],
+  'GoldenJackal':['Government'],
+  'GreenCube':['Government','Defense'],
+  'Embargo':['Government','Critical Infrastructure'],
+  'CloudSorcerer':['Government'],
+  'RomCom':['Government','Defense','Technology'],
+  'UAC-0050':['Government','Defense'],
+  'satadriver':['Government'],
+  'Zebrocy':['Government','Defense'],
+  'Asylum Ambuscade':['Finance','Government'],
+  'GopherWhisper':['Government','Defense'],
+  'Gold Dupont':['Finance','Technology'],
+  'SteppeDriver':['Government'],
+  'Gorbag':['Government'],
+  'Vermin':['Government','Defense'],
+  'Dire Wolf':['Government','Finance'],
+  'Warlock':['Government'],
+  'BlackNevas':['Finance','Healthcare'],
+  'LockBit':['Finance','Healthcare','Critical Infrastructure','Government'],
+  'RansomHub':['Finance','Healthcare','Critical Infrastructure'],
+  'Black Basta':['Finance','Healthcare','Critical Infrastructure'],
+  'Akira':['Finance','Healthcare','Technology'],
+  'Play':['Finance','Government','Healthcare'],
+  'Medusa':['Finance','Healthcare','Government'],
+  'BianLian':['Finance','Healthcare','Critical Infrastructure'],
+  'MedusaLocker':['Finance','Healthcare'],
+  'BlackSuit':['Government','Finance'],
+  'INC Ransom':['Healthcare','Government'],
+  'Monti':['Finance','Government'],
+  'Qilin':['Healthcare','Finance'],
+  'Trigona':['Finance','Healthcare'],
+  'Lynx':['Finance','Healthcare'],
+  'FIN7':['Finance','Technology'],
+  'Webworm':['Government','Technology'],
+  'Evasive Panda':['Government','Media'],
+  'FishMonger':['Government','Technology'],
+  'GREF':['Government','Media'],
+  'Ke3chang':['Government'],
+  'LuckyMouse':['Government','Technology'],
+  'MirrorFace':['Government','Defense','Media'],
+  'Mustang Panda':['Government'],
+  'RedFoxtrot':['Government','Defense','Telecom'],
+  'SneakyDragon':['Government','Defense'],
+  'SparklingGoblin':['Technology','Government'],
+  'Speccom':['Government'],
+  'TA410':['Government','Energy'],
+  'TA428':['Government','Defense'],
+  'TheWizards':['Technology','Government'],
+  'Tick':['Defense','Technology'],
+  'Websiic':['Government','Technology'],
+  'Winnti Group':['Technology','Healthcare','Finance'],
+  'Gelsemium':['Government','Defense'],
+  'BackdoorDiplomacy':['Government'],
+  'DigitalRecyclers':['Government','Technology'],
+  'Worok':['Government'],
+  'GALLIUM':['Telecom','Government'],
+  'PerplexedGoblin':['Government'],
+  'Blackwood':['Technology','Government'],
+  'CeranaKeeper':['Government'],
+  'GalaxyGato':['Technology','Government'],
+  'Flax Typhoon':['Government','Technology'],
+  'LuoYu':['Government','Defense'],
+  'UnsolicitedBooker':['Government','Technology'],
+  'LongNosedGoblin':['Government'],
+  'TrappedGoblin':['Government','Defense'],
+  'Poison Carp':['Government','Media'],
+  'PlushDaemon':['Government','Technology'],
+  'FamousSparrow':['Government','Finance'],
+  'Lotus Blossom':['Government','Defense'],
+  'FontGoblin':['Government'],
+  'FlashVisit':['Government','Technology'],
+  'Global Sinobi':['Government','Telecom'],
+  'Silver Fox':['Government','Finance'],
+  'Chaos':['Government','Critical Infrastructure'],
+  'FrontierPiercer':['Government','Defense'],
+  'Ballistic Bobcat':['Government','Defense'],
+  'FreshFeline':['Government'],
+  'MuddyWater':['Government','Telecom','Defense'],
+  'OilRig':['Government','Finance','Energy'],
+  'WildPressure':['Energy','Government'],
+  'BladeHawk':['Government','Media'],
+  'BladedFeline':['Government'],
+  'Domestic Kitten':['Government','Media'],
+  'BiBiGun':['Government','Critical Infrastructure'],
+  'Tortoiseshell':['Defense','Technology'],
+  'Lyceum':['Energy','Government'],
+  'ShroudedSnooper':['Telecom','Government'],
+  'CyberToufan':['Government','Critical Infrastructure'],
+  'Anubis':['Finance'],
+  'Andariel':['Defense','Finance','Healthcare'],
+  'Kimsuky':['Government','Defense'],
+  'Konni':['Government','Defense'],
+  'Lazarus':['Finance','Defense','Technology'],
+  'ScarCruft':['Government','Defense'],
+  'DeceptiveDevelopment':['Technology','Finance'],
+  'StartupNation':['Technology','Government'],
+  'Agrius':['Government','Finance'],
+  'Candiru':['Government','Media'],
+  'Donot Team':['Government','Defense'],
+  'Bahamut':['Government','Media'],
+  'Patchwork':['Defense','Government'],
+  'StrongPity':['Government','Technology'],
+  'CosmicBeetle':['Finance','Healthcare'],
+  'MoustachedBouncer':['Government'],
+  'POLONIUM':['Technology','Government'],
+  'Stealth Falcon':['Government','Media'],
+  'Transparent Tribe':['Government','Defense'],
+  'APT-C-60':['Government','Technology'],
+  'Arid Viper':['Government','Defense','Telecom'],
+  'DragonForce':['Government','Critical Infrastructure'],
+  'Evilnum':['Finance'],
+  'FourFunkyGorillas':['Finance'],
+  'Virtual Invaders':['Government','Critical Infrastructure'],
+  'my group':['Government'],
+  'SinisterEye':['Government'],
+  'NotLockBit':['Finance','Technology'],
+  'GhostRedirector':['Government'],
+  'KMA VPN':['Government','Technology'],
+  'InedibleOchotense':['Finance'],
+  'EUCA-0011':['Government'],
+  'DeadLock':['Finance','Healthcare'],
+  'RansomHouse':['Finance','Healthcare'],
+  'Gentlemen':['Finance'],
+  'SlippyNunchucks':['Finance','Healthcare'],
+  'BlackShrantac':['Finance'],
+  'Eggotistic':['Government'],
+};
 
 // Separate known vs satellite actors
 const KNOWN = ACTORS.filter(a=>a.country!=='Unknown');
@@ -518,7 +949,19 @@ const SATS   = ACTORS.filter(a=>a.country==='Unknown');
 const ctyCounts={};
 ACTORS.forEach(a=>{ctyCounts[a.country]=(ctyCounts[a.country]||0)+1});
 const sortedCtries=Object.entries(ctyCounts).sort((a,b)=>b[1]-a[1]);
-sortedCtries.forEach(([c])=>selCtries.add(c));
+// No default selection — user picks what to show
+
+// Stable orbital positions per known country (assigned once, never change)
+const KNOWN_COUNTRIES=sortedCtries.filter(([c])=>c!=='Unknown').map(([c])=>c);
+const COUNTRY_ORBITS={};
+KNOWN_COUNTRIES.forEach((cty,i)=>{
+  const shells=[1.10,1.24,1.38,1.52];
+  COUNTRY_ORBITS[cty]={
+    shell:shells[i%shells.length],
+    incl:(Math.PI/4.5)*(i*0.68+0.25),
+    theta:(Math.PI*2/KNOWN_COUNTRIES.length)*i
+  };
+});
 
 const catCounts={};
 ACTORS.forEach(a=>{catCounts[a.category]=(catCounts[a.category]||0)+1});
@@ -589,13 +1032,39 @@ const SAT_ORBITS = SATS.map((actor,i)=>{
   const shells=[1.18,1.30,1.44,1.58,1.72];
   const shell=shells[i%shells.length];
   const incl=(Math.PI/6)*(i*0.7+0.3);
-  // Fixed angle — evenly spread, no movement
   const theta=(Math.PI*2/SATS.length)*i;
-  return {actor,shell,incl,theta}; // no speed, no startTime
+  // Slightly different speed per actor so they spread apart naturally
+  const speed=0.000055*(0.78+(i%11)*0.04); // ~1.5–2.5 min per orbit
+  return {actor,shell,incl,theta,speed};
 });
+const SAT_START=performance.now();
 
 let satCanvas=null,satCtx=null;
-let satHover=-1; // index of hovered sat (in visibleSatOrbits array)
+let satHover=-1; // index in getAllSatObjects() array
+
+// Returns one cluster object per visible country (KNOWN actors)
+function getVisibleClusters(){
+  const groups={};
+  KNOWN.filter(isActorVisible).forEach(a=>{
+    if(!groups[a.country]) groups[a.country]=[];
+    groups[a.country].push(a);
+  });
+  return Object.entries(groups)
+    .map(([country,actors])=>{
+      const orb=COUNTRY_ORBITS[country];
+      return orb?{type:'cluster',country,actors,lat:actors[0].lat,lng:actors[0].lng,alt:0.4,shell:orb.shell,incl:orb.incl,theta:orb.theta}:null;
+    }).filter(Boolean);
+}
+
+// Combined list: country clusters + individual orbiting actors for Unknown
+function getAllSatObjects(){
+  const objs=[...getVisibleClusters()];
+  // Each unknown actor orbits individually
+  SAT_ORBITS.filter(o=>isActorVisible(o.actor)).forEach(o=>{
+    objs.push({type:'actor',actor:o.actor,shell:o.shell,incl:o.incl,theta:o.theta,speed:o.speed});
+  });
+  return objs;
+}
 
 function initSatCanvas(){
   satCanvas=document.getElementById('sat-canvas');
@@ -610,32 +1079,56 @@ function initSatCanvas(){
 }
 
 function getSatPos(orb){
-  // Static position — no orbital movement
+  // Geographic projection for clusters with lat/lng
+  if(globe && orb.lat!=null && orb.lng!=null){
+    try{
+      const alt=orb.alt!=null?orb.alt:0.4;
+      const sc=globe.toScreenCoords(orb.lat,orb.lng,alt);
+      if(sc){
+        const wc=globe.getCoords(orb.lat,orb.lng,alt);
+        const cp=globe.camera().position;
+        const dot=wc.x*cp.x+wc.y*cp.y+wc.z*cp.z;
+        return {x:sc.x,y:sc.y,z:dot,r:globeRadius*(1+alt)};
+      }
+    }catch(e){}
+  }
+  // Orbital path — theta animated for actors with a speed property
   const r=globeRadius*orb.shell;
-  const x3=r*Math.cos(orb.theta);
-  const y3=r*Math.sin(orb.theta)*Math.cos(orb.incl);
-  const z3=r*Math.sin(orb.theta)*Math.sin(orb.incl);
+  const t=orb.speed!=null?orb.theta+orb.speed*(performance.now()-SAT_START):orb.theta;
+  const x3=r*Math.cos(t);
+  const y3=r*Math.sin(t)*Math.cos(orb.incl);
+  const z3=r*Math.sin(t)*Math.sin(orb.incl);
   return {x:globeCenter.x+x3,y:globeCenter.y+y3,z:z3,r:r};
 }
 
 function onSatMouseMove(e){
   if(!satCanvas) return;
-  if(e.target && e.target.closest && e.target.closest('#sidebar,#detail-panel,#hamburger')) return;
-  const now=performance.now();
+  if(e.target && e.target.closest && e.target.closest('#sidebar,#detail-panel,#hamburger,#view-toggle,#matrix-panel')) return;
   const mx=e.clientX,my=e.clientY;
   const tooltip=document.getElementById('tooltip');
   let hit=-1;
-  const visibleSatOrbits=SAT_ORBITS.filter(o=>isActorVisible(o.actor));
-  for(let i=0;i<visibleSatOrbits.length;i++){
-    const p=getSatPos(visibleSatOrbits[i]);
+  const allObjs=getAllSatObjects();
+  for(let i=0;i<allObjs.length;i++){
+    const p=getSatPos(allObjs[i]);
     const dx=mx-p.x,dy=my-p.y;
-    if(dx*dx+dy*dy<196){ // 14px radius for easier hover
+    if(dx*dx+dy*dy<196){
       hit=i;
-      const orb=visibleSatOrbits[i];
+      const obj=allObjs[i];
       tooltip.classList.add('rich');
-      tooltip.innerHTML=`<strong style="color:#00ffe5;font-family:var(--mono)">${orb.actor.name}</strong>
-        <span style="color:#4a8a80;font-size:9px;display:block;margin-top:2px">${orb.actor.country} · ${orb.actor.category}</span>
-        <span style="color:#6aada0;font-size:10px;display:block;margin-top:3px;max-width:200px;white-space:normal;line-height:1.4">${orb.actor.summary.substring(0,120)}…</span>`;
+      if(obj.type==='cluster'){
+        const col=COLORS[obj.country]||'#00ffe5';
+        const flag=FLAGS[obj.country]||'';
+        const breakdown=Object.entries(
+          obj.actors.reduce((acc,a)=>{acc[a.category]=(acc[a.category]||0)+1;return acc},{})
+        ).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`${c}: ${n}`).join(' · ');
+        tooltip.innerHTML=`<strong style="color:${col};font-family:var(--mono)">${flag} ${obj.country}</strong>
+          <span style="color:#4a8a80;font-size:9px;display:block;margin-top:2px">${obj.actors.length} threat actor${obj.actors.length>1?'s':''} — click to list</span>
+          <span style="color:#6aada0;font-size:9px;display:block;margin-top:3px">${breakdown}</span>`;
+      } else {
+        tooltip.innerHTML=`<strong style="color:#00ffe5;font-family:var(--mono)">${obj.actor.name}</strong>
+          <span style="color:#4a8a80;font-size:9px;display:block;margin-top:2px">${obj.actor.country} · ${obj.actor.category}</span>
+          <span style="color:#6aada0;font-size:10px;display:block;margin-top:3px;max-width:200px;white-space:normal;line-height:1.4">${obj.actor.summary.substring(0,120)}…</span>`;
+      }
       tooltip.classList.add('visible');
       tooltip.style.left=(mx+14)+'px';
       tooltip.style.top=(my-10)+'px';
@@ -651,16 +1144,19 @@ function onSatMouseMove(e){
 }
 
 function onSatClick(e){
-  // Don't intercept clicks on UI panels or sidebar
-  if(e.target && e.target.closest && e.target.closest('#detail-panel,#sidebar,#hamburger')) return;
-  const now=performance.now();
+  if(e.target && e.target.closest && e.target.closest('#detail-panel,#sidebar,#hamburger,#view-toggle,#matrix-panel')) return;
   const mx=e.clientX,my=e.clientY;
-  const visibleSatOrbits=SAT_ORBITS.filter(o=>isActorVisible(o.actor));
-  for(let i=0;i<visibleSatOrbits.length;i++){
-    const p=getSatPos(visibleSatOrbits[i]);
+  const allObjs=getAllSatObjects();
+  for(let i=0;i<allObjs.length;i++){
+    const p=getSatPos(allObjs[i]);
     const dx=mx-p.x,dy=my-p.y;
-    if(dx*dx+dy*dy<144){ // 12px hit radius
-      openPanel(visibleSatOrbits[i].actor);
+    if(dx*dx+dy*dy<196){
+      const obj=allObjs[i];
+      if(obj.type==='cluster'){
+        showPicker(obj.actors,mx,my);
+      } else {
+        openPanel(obj.actor);
+      }
       return;
     }
   }
@@ -671,26 +1167,20 @@ function drawSatellites(){
   satCtx.clearRect(0,0,satCanvas.width,satCanvas.height);
   if(!globe) return;
 
-  // Only draw visible satellites
-  const visOrbits=SAT_ORBITS.filter(o=>isActorVisible(o.actor));
-  if(visOrbits.length===0) return;
+  const allObjs=getAllSatObjects();
+  if(allObjs.length===0){satCtx=satCanvas.getContext('2d');return;}
 
-  // Group orbits by shell for drawing orbit rings
-  const shells=new Set(visOrbits.map(o=>o.shell));
-  shells.forEach(shell=>{
-    const r=globeRadius*shell;
-    // Draw orbit ellipse (simplified: full circle projected)
-    // Find representative inclination for this shell
-    const orb=visOrbits.find(o=>o.shell===shell);
-    if(!orb) return;
-    const incl=orb.incl;
+  // Draw orbit rings — one per unique shell value
+  const shellRep={};
+  allObjs.forEach(o=>{if(!shellRep[o.shell]) shellRep[o.shell]=o;});
+  Object.values(shellRep).forEach(o=>{
+    const r=globeRadius*o.shell;
     satCtx.save();
     satCtx.translate(globeCenter.x,globeCenter.y);
-    // Scale Y by cos(inclination) to simulate 3D tilt
-    satCtx.scale(1,Math.abs(Math.cos(incl))*0.7+0.3);
+    satCtx.scale(1,Math.abs(Math.cos(o.incl))*0.7+0.3);
     satCtx.beginPath();
     satCtx.arc(0,0,r,0,Math.PI*2);
-    satCtx.strokeStyle='rgba(0,255,229,0.07)';
+    satCtx.strokeStyle='rgba(0,255,229,0.06)';
     satCtx.lineWidth=0.8;
     satCtx.setLineDash([3,6]);
     satCtx.stroke();
@@ -698,78 +1188,122 @@ function drawSatellites(){
     satCtx.restore();
   });
 
-  // Draw each satellite
-  visOrbits.forEach((orb,idx)=>{
-    const p=getSatPos(orb);
+  // Draw each object
+  allObjs.forEach((obj,idx)=>{
+    const p=getSatPos(obj);
     const isBehind=p.z<0;
-    const alpha=isBehind?0.25:1;
-    const color='#00ffe5';
     const isHov=(satHover===idx && !isBehind);
 
-
-
-    // Body
     satCtx.save();
-    satCtx.globalAlpha=isBehind?0.2:1;
-    satCtx.beginPath();
-    satCtx.arc(p.x,p.y,isHov?6:4,0,Math.PI*2);
-    satCtx.strokeStyle=color;
-    satCtx.lineWidth=isHov?2:1.5;
-    satCtx.stroke();
-    // Inner dot
-    satCtx.beginPath();
-    satCtx.arc(p.x,p.y,isHov?2:1.5,0,Math.PI*2);
-    satCtx.fillStyle=color;
-    satCtx.fill();
-    // Glow
-    if(!isBehind){
-      satCtx.shadowColor=color;
-      satCtx.shadowBlur=isHov?14:8;
+    if(obj.type==='cluster'){
+      // ── Country cluster ──
+      const col=COLORS[obj.country]||'#00ffe5';
+      const r=isHov?9:6;
+      satCtx.globalAlpha=isBehind?0.2:1;
+      if(!isBehind){satCtx.shadowColor=col;satCtx.shadowBlur=isHov?20:12;}
+      // Outer ring
+      satCtx.beginPath();
+      satCtx.arc(p.x,p.y,r,0,Math.PI*2);
+      satCtx.strokeStyle=col;
+      satCtx.lineWidth=isHov?2:1.5;
+      satCtx.stroke();
+      // Filled inner dot
+      satCtx.shadowBlur=0;
+      satCtx.beginPath();
+      satCtx.arc(p.x,p.y,isHov?4:2.5,0,Math.PI*2);
+      satCtx.fillStyle=col;
+      satCtx.globalAlpha=isBehind?0.2:0.75;
+      satCtx.fill();
+      // Solar panels
+      satCtx.globalAlpha=isBehind?0.1:0.45;
+      satCtx.strokeStyle=col;
+      satCtx.lineWidth=1;
+      satCtx.beginPath();
+      satCtx.moveTo(p.x-(isHov?14:9),p.y);satCtx.lineTo(p.x-(r+1),p.y);
+      satCtx.moveTo(p.x+(r+1),p.y);satCtx.lineTo(p.x+(isHov?14:9),p.y);
+      satCtx.stroke();
+      // Count label (always visible, not just on hover)
+      if(!isBehind){
+        satCtx.globalAlpha=1;
+        satCtx.font=`bold ${isHov?11:9}px "Share Tech Mono",monospace`;
+        satCtx.fillStyle=col;
+        satCtx.shadowColor=col;satCtx.shadowBlur=5;
+        satCtx.fillText(obj.actors.length,p.x+r+4,p.y+(isHov?4:3));
+        satCtx.shadowBlur=0;
+      }
+      // Country name label on hover
+      if(isHov){
+        satCtx.globalAlpha=1;
+        satCtx.font='11px "Share Tech Mono",monospace';
+        satCtx.fillStyle=col;
+        satCtx.shadowColor=col;satCtx.shadowBlur=8;
+        const flag=FLAGS[obj.country]||'';
+        satCtx.fillText(`${flag} ${obj.country}`,p.x+r+18,p.y+4);
+        satCtx.shadowBlur=0;
+        satCtx.strokeStyle=col+'55';
+        satCtx.lineWidth=0.5;
+        satCtx.beginPath();
+        satCtx.moveTo(p.x+r+2,p.y);satCtx.lineTo(p.x+r+16,p.y+2);
+        satCtx.stroke();
+      }
+    } else {
+      // ── Unknown actor satellite ──
+      const color='#00ffe5';
+      satCtx.globalAlpha=isBehind?0.2:1;
       satCtx.beginPath();
       satCtx.arc(p.x,p.y,isHov?6:4,0,Math.PI*2);
       satCtx.strokeStyle=color;
+      satCtx.lineWidth=isHov?2:1.5;
       satCtx.stroke();
-    }
-    // Solar panels
-    satCtx.shadowBlur=0;
-    satCtx.strokeStyle=color;
-    satCtx.lineWidth=1;
-    satCtx.globalAlpha=isBehind?0.15:0.5;
-    satCtx.beginPath();
-    satCtx.moveTo(p.x-(isHov?11:7),p.y);satCtx.lineTo(p.x-(isHov?6:4),p.y);
-    satCtx.moveTo(p.x+(isHov?6:4),p.y);satCtx.lineTo(p.x+(isHov?11:7),p.y);
-    satCtx.stroke();
-    // Name label on hover
-    if(isHov && !isBehind){
-      satCtx.globalAlpha=1;
-      satCtx.font='10px "Share Tech Mono", monospace';
-      satCtx.fillStyle='#00ffe5';
-      satCtx.shadowColor='#00ffe5';
-      satCtx.shadowBlur=8;
-      satCtx.fillText(orb.actor.name, p.x+16, p.y+4);
-      satCtx.shadowBlur=0;
-      // Draw connecting line from satellite to label
-      satCtx.strokeStyle='rgba(0,255,229,0.3)';
-      satCtx.lineWidth=0.5;
       satCtx.beginPath();
-      satCtx.moveTo(p.x+7, p.y);
-      satCtx.lineTo(p.x+14, p.y+2);
+      satCtx.arc(p.x,p.y,isHov?2:1.5,0,Math.PI*2);
+      satCtx.fillStyle=color;
+      satCtx.fill();
+      if(!isBehind){
+        satCtx.shadowColor=color;satCtx.shadowBlur=isHov?14:8;
+        satCtx.beginPath();
+        satCtx.arc(p.x,p.y,isHov?6:4,0,Math.PI*2);
+        satCtx.strokeStyle=color;satCtx.stroke();
+      }
+      satCtx.shadowBlur=0;
+      satCtx.strokeStyle=color;satCtx.lineWidth=1;
+      satCtx.globalAlpha=isBehind?0.15:0.5;
+      satCtx.beginPath();
+      satCtx.moveTo(p.x-(isHov?11:7),p.y);satCtx.lineTo(p.x-(isHov?6:4),p.y);
+      satCtx.moveTo(p.x+(isHov?6:4),p.y);satCtx.lineTo(p.x+(isHov?11:7),p.y);
       satCtx.stroke();
+      if(isHov&&!isBehind){
+        satCtx.globalAlpha=1;
+        satCtx.font='10px "Share Tech Mono",monospace';
+        satCtx.fillStyle=color;satCtx.shadowColor=color;satCtx.shadowBlur=8;
+        satCtx.fillText(obj.actor.name,p.x+16,p.y+4);
+        satCtx.shadowBlur=0;
+        satCtx.strokeStyle='rgba(0,255,229,0.3)';satCtx.lineWidth=0.5;
+        satCtx.beginPath();
+        satCtx.moveTo(p.x+7,p.y);satCtx.lineTo(p.x+14,p.y+2);
+        satCtx.stroke();
+      }
     }
     satCtx.restore();
   });
 
-  // Init ctx ref
   satCtx=satCanvas.getContext('2d');
 }
 
 // ============================================================
 // FILTERS
 // ============================================================
+function getDefaultSectors(cat){
+  return({APT:['Government','Defense'],Ransomware:['Finance','Healthcare','Critical Infrastructure'],Crimeware:['Finance','Technology'],Hacktivist:['Government','Critical Infrastructure'],Influence:['Media','Government']})[cat]||['Government'];
+}
 function isActorVisible(a){
   if(!selCats.has(a.category)) return false;
   if(!selCtries.has(a.country)) return false;
   if(searchQ && !a.name.toLowerCase().includes(searchQ.toLowerCase())) return false;
+  if(selSectors.size>0){
+    const s=ACTOR_SECTORS[a.name]||getDefaultSectors(a.category);
+    if(!s.some(x=>selSectors.has(x))) return false;
+  }
   return true;
 }
 function getFiltered(){return KNOWN.filter(isActorVisible)}
@@ -807,6 +1341,62 @@ function buildCtyFilters(){
     });
     c.appendChild(lbl);
   });
+}
+
+function getCountriesForSectors(sectors){
+  const result=new Set();
+  ACTORS.forEach(a=>{
+    const s=ACTOR_SECTORS[a.name]||getDefaultSectors(a.category);
+    if(s.some(x=>sectors.has(x))) result.add(a.country);
+  });
+  return result;
+}
+
+function buildSectorFilters(){
+  const grid=document.getElementById('sect-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  SECTORS.forEach(sec=>{
+    const chip=document.createElement('div');
+    chip.className='sect-chip'+(selSectors.has(sec.id)?' active':'');
+    chip.textContent=sec.icon+' '+sec.id;
+    chip.addEventListener('click',()=>{
+      if(selSectors.has(sec.id)) selSectors.delete(sec.id);
+      else selSectors.add(sec.id);
+      chip.classList.toggle('active',selSectors.has(sec.id));
+      // Auto-activate countries that have actors in any selected sector
+      selCtries=selSectors.size>0?getCountriesForSectors(selSectors):new Set();
+      buildCtyFilters();
+      updateGlobe();updateStats();
+    });
+    grid.appendChild(chip);
+  });
+}
+
+function getVisibleArcs(){
+  if(!arcsOn) return [];
+  const arcs=[];
+  getVisibleClusters().forEach(cluster=>{
+    const targets=COUNTRY_ARCS[cluster.country]||[];
+    const startLat=cluster.actors[0].lat;
+    const startLng=cluster.actors[0].lng;
+    const col=COLORS[cluster.country]||'#00ffe5';
+    targets.forEach(t=>{
+      arcs.push({
+        startLat,startLng,
+        endLat:t.lat,endLng:t.lng,
+        country:cluster.country,
+        target:t.target,
+        color:[col+'cc',col+'11'],
+      });
+    });
+  });
+  return arcs;
+}
+
+function updateArcs(){
+  if(!globe) return;
+  globe.arcsData(getVisibleArcs());
 }
 
 function updateStats(){
@@ -993,13 +1583,13 @@ function openPanel(actor){
   const panel=document.getElementById('detail-panel');
   panel.style.borderLeftColor=col;
   panel.style.boxShadow=`-8px 0 40px ${col}33`;
-  const mitre=getMitreUrl(actor.name);
+  const mitre=getMitreUrl(actor.name,actor.category);
   document.getElementById('panel-content').innerHTML=`
     <div style="font-family:var(--mono);font-size:22px;font-weight:400;color:${col};margin-bottom:14px;padding-right:36px;letter-spacing:1px;text-shadow:0 0 20px ${col}88">${actor.name}</div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
       <span class="p-tag"><span class="dot" style="background:${col}"></span>${flag} ${actor.country}</span>
       <span class="p-tag">${actor.category}</span>
-      <a href="${mitre.url}" target="_blank" rel="noopener noreferrer" class="mitre-link ${mitre.direct?'mitre-direct':'mitre-search'}">
+      <a href="${mitre.url}" target="_blank" rel="noopener noreferrer" class="mitre-link ${mitre.direct?'mitre-direct':'misp-search'}">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         ${mitre.label}
       </a>
@@ -1010,9 +1600,9 @@ function openPanel(actor){
     ${actor.country==='Unknown'?'<div class="p-divider"></div><div class="p-section-lbl" style="color:#00ffe5">Attribution</div><div class="p-summary" style="color:rgba(0,255,229,0.5)">Origin unattributed — orbiting threat landscape without confirmed state nexus.</div>':''}
     <div class="p-divider"></div>
     <div class="p-section-lbl">External Reference</div>
-    <a href="${mitre.url}" target="_blank" rel="noopener noreferrer" class="mitre-full-link">
+    <a href="${mitre.url}" target="_blank" rel="noopener noreferrer" class="${mitre.direct?'mitre-full-link':'misp-full-link'}">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      ${mitre.direct ? 'View <strong>MITRE ATT&CK</strong> group page — '+mitre.label : 'Search <strong>MITRE ATT&CK</strong> for "'+actor.name+'"'}
+      ${mitre.direct ? 'View <strong>MITRE ATT&CK</strong> group page — '+mitre.label : 'View <strong>MISP Galaxy</strong> — '+actor.name}
     </a>
   `;
   // Show panel by setting right:0 directly — no CSS class tricks
@@ -1122,11 +1712,209 @@ function initGlobe(){
 
   globe.pointOfView({lat:25,lng:20,altitude:2.2});
   computeGlobeMetrics();
+
+  // Arc layer configuration
+  globe
+    .arcsData([])
+    .arcStartLat(d=>d.startLat)
+    .arcStartLng(d=>d.startLng)
+    .arcEndLat(d=>d.endLat)
+    .arcEndLng(d=>d.endLng)
+    .arcColor(d=>d.color)
+    .arcStroke(0.5)
+    .arcDashLength(0.35)
+    .arcDashGap(0.15)
+    .arcDashAnimateTime(1800)
+    .arcAltitude(0.3);
 }
 
 function updateGlobe(){
   if(!globe) return;
   globe.htmlElementsData(getFiltered());
+  updateArcs();
+  updateMatrix();
+}
+
+// ============================================================
+// MATRIX VIEW
+// ============================================================
+function setView(v){
+  currentView=v;
+  const gc=document.getElementById('globe-container');
+  const sc=document.getElementById('sat-canvas');
+  const mp=document.getElementById('matrix-panel');
+  const arcBtn=document.getElementById('vt-arcs');
+  const arcSep=document.getElementById('vt-sep-arcs');
+  if(v==='globe'){
+    gc.style.opacity='1';gc.style.pointerEvents='auto';
+    sc.style.display='';
+    mp.style.display='none';
+    arcBtn.classList.add('arc-visible');
+    if(arcSep) arcSep.style.display='';
+  } else {
+    gc.style.opacity='0';gc.style.pointerEvents='none';
+    sc.style.display='none';
+    mp.style.display='flex';
+    arcBtn.classList.remove('arc-visible');
+    if(arcSep) arcSep.style.display='none';
+    updateMatrix();
+  }
+  document.getElementById('vt-globe').classList.toggle('active',v==='globe');
+  document.getElementById('vt-matrix').classList.toggle('active',v==='matrix');
+}
+
+function updateMatrix(){
+  if(currentView!=='matrix') return;
+  const visible=ACTORS.filter(isActorVisible);
+
+  // Build per-cell counts
+  const heatData={};
+  const rowTotals={};
+  visible.forEach(a=>{
+    if(!heatData[a.country]) heatData[a.country]={};
+    heatData[a.country][a.category]=(heatData[a.country][a.category]||0)+1;
+    rowTotals[a.country]=(rowTotals[a.country]||0)+1;
+  });
+
+  const countries=Object.keys(rowTotals).sort((a,b)=>rowTotals[b]-rowTotals[a]);
+
+  // Max value for intensity scaling
+  let maxVal=1;
+  countries.forEach(c=>CATS.forEach(cat=>{
+    const n=heatData[c]?.[cat]||0;
+    if(n>maxVal) maxVal=n;
+  }));
+
+  // Build heatmap table
+  let hml='<table class="hm-table"><thead><tr><th>Country / Origin</th>';
+  CATS.forEach(cat=>{
+    const isColActive=matrixFilter.category===cat&&!matrixFilter.country;
+    hml+=`<th data-hm-col="${cat}" class="${isColActive?'hm-col-active':''}">${cat}</th>`;
+  });
+  hml+='</tr></thead><tbody>';
+
+  countries.forEach(cty=>{
+    const col=COLORS[cty]||'#00ffe5';
+    const flag=FLAGS[cty]||'🌐';
+    const isRowActive=matrixFilter.country===cty&&!matrixFilter.category;
+    hml+=`<tr><td><div class="hm-row-lbl${isRowActive?' hm-row-active':''}" data-hm-row="${cty}">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};box-shadow:0 0 4px ${col};flex-shrink:0"></span>
+      ${flag} ${cty}<span class="hm-total">${rowTotals[cty]}</span>
+    </div></td>`;
+    CATS.forEach(cat=>{
+      const n=heatData[cty]?.[cat]||0;
+      const intensity=n>0?0.04+(n/maxVal)*0.22:0.012;
+      const bg=`rgba(0,255,229,${intensity.toFixed(3)})`;
+      const isCellActive=matrixFilter.country===cty&&matrixFilter.category===cat;
+      hml+=`<td><div class="hm-cell${isCellActive?' hm-cell-active':''}${n===0?' hm-cell-zero':''}"
+        style="background:${bg}"
+        data-hm-cell-row="${cty}" data-hm-cell-cat="${cat}">${n>0?n:'·'}</div></td>`;
+    });
+    hml+='</tr>';
+  });
+  hml+='</tbody></table>';
+  document.getElementById('heatmap-wrap').innerHTML=hml;
+
+  // Heatmap click handlers
+  document.getElementById('heatmap-wrap').querySelectorAll('.hm-cell').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const r=el.dataset.hmCellRow,c=el.dataset.hmCellCat;
+      matrixFilter=(matrixFilter.country===r&&matrixFilter.category===c)
+        ?{country:null,category:null}:{country:r,category:c};
+      updateMatrix();
+    });
+  });
+  document.getElementById('heatmap-wrap').querySelectorAll('.hm-row-lbl').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const r=el.dataset.hmRow;
+      matrixFilter=(matrixFilter.country===r&&!matrixFilter.category)
+        ?{country:null,category:null}:{country:r,category:null};
+      updateMatrix();
+    });
+  });
+  document.getElementById('heatmap-wrap').querySelectorAll('th[data-hm-col]').forEach(el=>{
+    const cat=el.dataset.hmCol;
+    el.addEventListener('click',()=>{
+      matrixFilter=(matrixFilter.category===cat&&!matrixFilter.country)
+        ?{country:null,category:null}:{country:null,category:cat};
+      updateMatrix();
+    });
+  });
+
+  // Apply matrix drill-down filter for actor table
+  const tableActors=visible.filter(a=>{
+    if(matrixFilter.country&&a.country!==matrixFilter.country) return false;
+    if(matrixFilter.category&&a.category!==matrixFilter.category) return false;
+    return true;
+  });
+
+  // Sort actors
+  const sc=tableSort.col,sd=tableSort.dir;
+  tableActors.sort((a,b)=>{
+    if(sc==='country'){
+      const diff=(rowTotals[b.country]||0)-(rowTotals[a.country]||0);
+      if(diff!==0) return diff*sd;
+      return a.name<b.name?-1:a.name>b.name?1:0;
+    }
+    const av=a[sc]||'',bv=b[sc]||'';
+    return av<bv?-sd:av>bv?sd:0;
+  });
+
+  // Update count + filter badge
+  const badge=document.getElementById('at-filter-badge');
+  const filterDesc=[matrixFilter.country,matrixFilter.category].filter(Boolean).join(' / ');
+  document.getElementById('at-count').textContent=`SHOWING ${tableActors.length} OF ${visible.length} ACTORS`;
+  if(filterDesc){
+    badge.style.display='inline-flex';
+    badge.textContent=`CLEAR: ${filterDesc} ×`;
+  } else {
+    badge.style.display='none';
+  }
+
+  // Build table rows
+  let rowsHtml='';
+  tableActors.forEach(a=>{
+    const acol=COLORS[a.country]||'#00ffe5';
+    const flag=FLAGS[a.country]||'🌐';
+    const mitre=getMitreUrl(a.name,a.category);
+    rowsHtml+=`<tr data-actor-name="${a.name}">
+      <td>${a.name}</td>
+      <td><span class="at-country-cell">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${acol};flex-shrink:0"></span>
+        ${flag} ${a.country}
+      </span></td>
+      <td><span class="at-cat-badge" style="color:${acol};border-color:${acol}33">${a.category}</span></td>
+      <td><a href="${mitre.url}" target="_blank" rel="noopener" class="at-mitre ${mitre.direct?'at-mitre-direct':'at-mitre-search'}" onclick="event.stopPropagation()">${mitre.label}</a></td>
+    </tr>`;
+  });
+  document.getElementById('actor-tbody').innerHTML=rowsHtml||
+    '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px;font-family:var(--mono);font-size:10px;letter-spacing:0.5px">NO ACTORS MATCH CURRENT FILTERS</td></tr>';
+
+  // Row click → detail panel
+  document.getElementById('actor-tbody').querySelectorAll('tr[data-actor-name]').forEach(row=>{
+    row.addEventListener('click',()=>{
+      const actor=ACTORS.find(a=>a.name===row.dataset.actorName);
+      if(actor) openPanel(actor);
+    });
+  });
+
+  // Sort header clicks
+  document.querySelectorAll('.at-table thead th[data-col]').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const c=th.dataset.col;
+      if(c==='mitre') return;
+      tableSort=(tableSort.col===c)?{col:c,dir:tableSort.dir*-1}:{col:c,dir:1};
+      updateMatrix();
+    });
+  });
+  // Sort arrows
+  document.querySelectorAll('.at-table thead th[data-col]').forEach(th=>{
+    const c=th.dataset.col;
+    const arrow=th.querySelector('.sort-arrow');
+    if(!arrow) return;
+    th.classList.toggle('sort-active',tableSort.col===c);
+    arrow.textContent=tableSort.col===c?(tableSort.dir===1?' ↑':' ↓'):'';
+  });
 }
 
 // ============================================================
@@ -1153,11 +1941,45 @@ function init(){
   initBg();
   buildCatFilters();
   buildCtyFilters();
+  buildSectorFilters();
   updateStats();
   initGlobe();
   initSatCanvas();
   animLoop();
   if(window.innerWidth<=768) document.getElementById('sidebar').classList.add('collapsed');
+
+  // View toggle
+  document.getElementById('vt-globe').addEventListener('click',()=>setView('globe'));
+  document.getElementById('vt-matrix').addEventListener('click',()=>setView('matrix'));
+
+  // Arcs toggle (globe-only)
+  document.getElementById('vt-arcs').addEventListener('click',()=>{
+    arcsOn=!arcsOn;
+    document.getElementById('vt-arcs').classList.toggle('active',arcsOn);
+    updateArcs();
+  });
+  // Show arc button on initial globe view
+  document.getElementById('vt-arcs').classList.add('arc-visible');
+
+  // Reset all filters
+  document.getElementById('reset-btn').addEventListener('click',()=>{
+    selCats=new Set(['APT','Ransomware','Crimeware','Hacktivist','Influence']);
+    selCtries=new Set();
+    selSectors=new Set();
+    searchQ='';
+    document.getElementById('search-input').value='';
+    buildCatFilters();
+    buildCtyFilters();
+    buildSectorFilters();
+    updateGlobe();
+    updateStats();
+  });
+
+  // Clear matrix drill-down filter
+  document.getElementById('at-filter-badge').addEventListener('click',()=>{
+    matrixFilter={country:null,category:null};
+    updateMatrix();
+  });
 }
 
 init();
