@@ -12,6 +12,7 @@ import type {
 } from "../shared/types.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
+const HOST = process.env.HOST ?? "0.0.0.0";
 const SCHEDULE_MS = 15 * 60 * 1000;
 const AUTO_INGEST = process.env.AUTO_INGEST !== "0";
 
@@ -269,11 +270,11 @@ async function startScheduler() {
   setInterval(tick, SCHEDULE_MS);
 }
 
-app.listen({ port: PORT, host: "0.0.0.0" }, (err) => {
+app.listen({ port: PORT, host: HOST }, (err) => {
   if (err) {
     app.log.error(err);
     process.exit(1);
   }
-  app.log.info(`server listening on :${PORT}`);
+  app.log.info(`server listening on ${HOST}:${PORT}`);
   startScheduler();
 });

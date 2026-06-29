@@ -11,7 +11,8 @@
     "ingest": "tsx server/ingest.ts",
     "build": "tsc -p tsconfig.json && vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "bash scripts/start.sh",
+    "stop": "bash scripts/stop.sh",
     "preview": "vite preview"
   },
   "dependencies": {
