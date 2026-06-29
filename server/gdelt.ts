@@ -143,6 +143,14 @@ export async function parseGkgStream(
         const hasCyberTheme = themes.some((t) => CYBER_THEMES.has(t));
         if (!hasCyberTheme) return;
 
+        // Title: search EXTRAS (index 26) and AllNames (index 23) for PAGE_TITLE
+        const title = findPageTitle(cols[COL.EXTRAS]) || findPageTitle(cols[COL.ALL_NAMES]);
+
+        // Secondary content validation: GDELT's CYBER_ATTACK theme is very broad
+        // and catches AI news, general crime, entertainment, etc. Require actual
+        // cyber-incident signals in the title or URL.
+        if (!isActualCyberIncident(title, url)) return;
+
         // Locations: prefer V1 (col 9) which has a simpler format:
         //   Type#Name#Country#ADM1#Lat#Lon#FeatureID
         // V2 (col 10) inserts an ADM2 field, shifting lat/lon by one position.
@@ -174,8 +182,7 @@ export async function parseGkgStream(
           if (m) language = m[1].toLowerCase();
         }
 
-        // Title: search EXTRAS (index 26) and AllNames (index 23) for PAGE_TITLE
-        const title = findPageTitle(cols[COL.EXTRAS]) || findPageTitle(cols[COL.ALL_NAMES]);
+        // Title already extracted above for content validation
 
         let domain: string;
         try {
@@ -248,6 +255,28 @@ function findPageTitle(field: string): string | null {
   if (!field) return null;
   const m = field.match(/<PAGE_TITLE>([^<]+)<\/PAGE_TITLE>/i);
   return m ? m[1].trim() : null;
+}
+
+// ── Cyber incident validation ───────────────────────────────────
+// GDELT's CYBER_ATTACK theme is keyword-based and very broad — it catches
+// AI news, deepfakes, general crime, anime, policy debates, etc.
+// This function validates that an article is actually about a real cyber
+// attack, breach, or security incident based on its title and URL.
+
+const CYBER_INCIDENT_KEYWORDS = /\b(hack|hacke[dr]|hacking|breach|data breach|ransomware|ransom|malware|trojan|backdoor|botnet|phishing|phish|spearphishing|spear-phishing|cyberattack|cyber-attack|cyber attack|cybercrime|cyber-crime|cyber crime|cyberespionage|cyber-espionage|cyber espionage|cybersecurity|cyber-security|cyber security|compromis|exfiltrat|zero-day|zero day|0day|cve-\d|vulnerab|exploit|ddos|denial.of.service|credential.stuffing|sql.injection|supply.chain.attack|infrastructure.attack|dark.web|data.leak|data theft|information theft|identity.theft|spyware|keylogger|rootkit|wiper|scam|fraud|encrypt|lockbit|blackcat|alphv|cl0p|apt\d|threat.actor|threat.group|advanced.persistent.threat|indicators.of.compromise|ioc|c2.server|command.and.control|payload|implant|intrusion|unauthorized.access|deface|defacement|skimmer|magecart|cryptominer|cryptojacking|coinminer|botnet|c2|turncoat|rat\b|remote.access.trojan|info-stealer|infostealer|stealer|loader|dropper|steganography|living.off.the.land|lotl|lateral.movement|privilege.escalation|persistent|implant|beacon|cobalt.strike|metasploit|empire|sliver|brute.rag|bruteforce|brute-force|credential.harvest|password.spray|kerberoast|pass-the-hash|golden.ticket|shadow.credentials)\b/i;
+
+const CYBER_EXCLUDE_KEYWORDS = /\b(anime|manga|deepfake.face.training|face.training|ai.model|openai|gpt|llm|qwen|gemini|claude|anthropic|ai.rollout|model.rollout|ai.firm|ai.startup|genai|generative.ai|text-to-image|text.to.image|ai.art|ai.generated|chatbot|virtual.assistant|voice.assistant|smart.speaker|smart.home|smart.tv|smartphone.review|iphone.review|gadget.review|tech.review|gaming|gameplay|game.review|esports|streaming.service|streaming.platform|netflix|spotify|disney|hulu|anime.lineup|season.\d|episode|soundtrack|cosplay|convention|expo|trade.show|car.review|car.model|electric.vehicle|ev\b|auto.show|motorcycle|boat.show|yacht|real.estate|property|housing.market|mortgage|insurance|guaranty.fund|insurer|loan|mortgage.rate|interest.rate|stock.market|crypto.price|bitcoin.price|ethereum|nft\b|crypto.trading|crypto.exchange|blockchain|web3|defi|metaverse|vr.headset|ar.glasses|wearable|fitness.tracker|smartwatch|recipe|restaurant|food.review|travel.guide|tourism|vacation|hotel.review|fashion|celebrity|gossip|entertainment|movie.review|film.festival|book.review|music.release|album.review|concert|festival.lineup|sports|nba|nfl|mlb|nhl|soccer|football|basketball|baseball|tennis|golf|olympic|championship|playoff|tournament|election|voting|ballot|campaign|polling|caucus|primary.election|gerrymander|redistricting|anime.convention|manga.release|light.novel)\b/i;
+
+export function isActualCyberIncident(title: string | null, url: string): boolean {
+  const text = `${title ?? ""} ${url}`.toLowerCase();
+
+  // Must have at least one cyber-incident keyword in title or URL
+  if (!CYBER_INCIDENT_KEYWORDS.test(text)) return false;
+
+  // Exclude obvious non-incident content
+  if (CYBER_EXCLUDE_KEYWORDS.test(text)) return false;
+
+  return true;
 }
 
 export function parseLocations(field: string): GkgLocation[] {
