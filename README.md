@@ -1,11 +1,11 @@
 # Threat Actor Globe
 
-A realtime global cyber threat activity monitor that ingests live news data from [GDELT 2.0](https://www.gdeltproject.org/) and visualizes cyber-attack incidents on an interactive map with deck.gl. Incidents are attributed to known threat actors via a curated alias table covering ~120 APT groups, ransomware operators, hacktivist collectives, and influence operations.
+A realtime global cyber threat activity monitor that ingests live news data from [GDELT 2.0](https://www.gdeltproject.org/) and visualizes cyber-attack incidents on an interactive map with deck.gl. Incidents are attributed to known threat actors via a curated alias table covering 124 APT groups, ransomware operators, hacktivist collectives, and influence operations.
 
 ## Features
 
 - **Live GDELT ingestion** — fetches and parses the GKG 15-minute file stream, filtering for cyber-related themes (`CYBER_ATTACK`, `TAX_FNCACT_HACKER`, `CRIME_CYBERCRIME`, etc.)
-- **Threat actor attribution** — matches article text (organizations, persons, title, URL) against a curated table of ~120 known threat actors and their aliases (e.g. APT28 / Fancy Bear / Forest Blizzard / Strontium)
+- **Threat actor attribution** — matches article text (organizations, persons, title, URL) against a curated table of 124 known threat actors and their 369 aliases (e.g. APT28 / Fancy Bear / Forest Blizzard / Strontium)
 - **Interactive deck.gl globe** — hexbin heat layer + incident scatter points colored by sentiment tone
 - **Country filter** — multi-select targeted countries with searchable list; filters incidents, stats, timeline, actors, and themes simultaneously
 - **Actor filter** — dropdown of attributed threat actors with live incident counts
@@ -136,7 +136,7 @@ server/
   db.ts              SQLite layer (node:sqlite, WAL, indexed)
   gdelt.ts           GDELT fetcher, ZIP extractor, GKG parser
   ingest.ts          15-min scheduler, throttled ingestion
-  threatActors.ts    Curated ~120 threat actor alias table
+  threatActors.ts    Curated 124 threat actor alias table (369 aliases)
   index.ts           Fastify API server
 shared/
   types.ts           Shared TypeScript types
