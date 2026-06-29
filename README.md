@@ -80,14 +80,34 @@ Starts both:
 - Vite dev server on `http://localhost:5173`
 - Fastify API server on `http://localhost:8787` (with auto-ingest every 15 min)
 
-### Build for production
+### Production
 
 ```bash
 npm run build
 npm start
 ```
 
-Serves the built frontend from Fastify's static plugin on `:8787`.
+The start script:
+- Builds the frontend automatically on first run (if `dist/` doesn't exist)
+- Starts the server in the background with PID file tracking (`.server.pid`)
+- Logs to `server.log`
+- Exposes the server on a configurable host and port (defaults to `0.0.0.0:8787`)
+
+```bash
+# Default
+npm start
+
+# Custom port
+PORT=3000 npm start
+
+# Localhost only
+HOST=127.0.0.1 PORT=8080 npm start
+
+# Stop the server
+npm run stop
+```
+
+The stop script performs a graceful `SIGTERM` shutdown with a 10-second timeout, falling back to `SIGKILL` if needed.
 
 ## API Endpoints
 
@@ -130,16 +150,32 @@ src/
     IncidentDrawer.tsx  Click-through incident details
     StatsBar.tsx        Aggregate statistics
     TimelinePanel.tsx   Daily volume chart
+scripts/
+  start.sh           Start production server (background, PID-tracked)
+  stop.sh            Stop running server (graceful shutdown)
 ```
 
 ## Configuration
 
 | Env Var | Default | Description |
 |---------|---------|-------------|
-| `PORT` | `8787` | API server port |
-| `DB_PATH` | `data/incidents.db` | SQLite database path |
+| `PORT` | `8787` | Server port |
+| `HOST` | `0.0.0.0` | Bind address (`0.0.0.0` = all interfaces, `127.0.0.1` = localhost only) |
 | `AUTO_INGEST` | `1` | Enable auto-ingest scheduler (`0` to disable) |
+| `DB_PATH` | `data/incidents.db` | SQLite database path |
+| `LOG_FILE` | `server.log` | Server log output file |
 | `INGEST_SINCE_HOURS` | `6` | Default lookback for `npm run ingest` |
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start production server in background (builds frontend if needed) |
+| `npm run stop` | Stop the running server (graceful SIGTERM → SIGKILL fallback) |
+| `npm run dev` | Start Vite + Fastify in dev mode with hot reload |
+| `npm run build` | Build frontend for production (`dist/`) |
+| `npm run ingest` | Run GDELT ingester (use `-- --hours=N` for lookback) |
+| `npm run typecheck` | Type-check frontend and server TypeScript |
 
 ## Data Sources
 
