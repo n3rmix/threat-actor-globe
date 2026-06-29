@@ -1,0 +1,40 @@
+{
+  "name": "threat-actor-globe",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Realtime global cyber threat actor activity globe powered by GDELT, deck.gl, React, Fastify, and SQLite.",
+  "scripts": {
+    "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"tsx watch server/index.ts\"",
+    "dev:web": "vite",
+    "dev:api": "tsx watch server/index.ts",
+    "ingest": "tsx server/ingest.ts",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit",
+    "start": "NODE_ENV=production tsx server/index.ts",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.0.0",
+    "@deck.gl/layers": "^9.0.0",
+    "@deck.gl/aggregation-layers": "^9.0.0",
+    "@deck.gl/mapbox": "^9.0.0",
+    "maplibre-gl": "^4.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "fastify": "^4.28.1",
+    "@fastify/static": "^7.0.4",
+    "@fastify/cors": "^9.0.1",
+    "csv-parse": "^5.5.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "concurrently": "^9.0.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
