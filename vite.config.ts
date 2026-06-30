@@ -12,5 +12,20 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          deckgl: [
+            "@deck.gl/core",
+            "@deck.gl/layers",
+            "@deck.gl/aggregation-layers",
+            "@deck.gl/mapbox",
+          ],
+          maplibre: ["maplibre-gl"],
+          react: ["react", "react-dom"],
+        },
+      },
+    },
   },
 });
