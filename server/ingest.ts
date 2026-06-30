@@ -1,6 +1,7 @@
 import { getDb, insertIncidents, type IncidentInsertRow } from "./db.js";
 import {
   CYBER_THEMES,
+  GEOPOLITICAL_THEMES,
   fetchGkgZip,
   fetchMasterFilelist,
   parseGkgStream,
@@ -26,7 +27,13 @@ async function ingestBatch(urls: string[], ts: string): Promise<{ inserted: numb
         if (!loc) return;
         const actor = pickActor(gkg.organizations, gkg.persons, gkg.title, gkg.url, gkg.domain);
         const cyberThemes = gkg.themes.filter((t) => CYBER_THEMES.has(t));
-        const theme = cyberThemes.length > 0 ? cyberThemes.join(",") : gkg.themes[0];
+        const geoThemes = gkg.themes.filter((t) => GEOPOLITICAL_THEMES.has(t));
+        const theme =
+          cyberThemes.length > 0
+            ? cyberThemes.join(",")
+            : geoThemes.length > 0
+              ? geoThemes.join(",")
+              : gkg.themes[0];
 
         rows.push({
           actor,

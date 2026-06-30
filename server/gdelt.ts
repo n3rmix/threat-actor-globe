@@ -17,6 +17,20 @@ export const CYBER_THEMES = new Set([
   "WB_2457_CYBER_CRIME",
 ]);
 
+export const GEOPOLITICAL_THEMES = new Set([
+  "MILITARY",
+  "TERROR",
+  "ARMEDCONFLICT",
+  "KILL",
+  "SANCTIONS",
+  "REBELS",
+  "COUP",
+  "SEPARATISTS",
+  "SECURITY_SERVICES",
+  "BLOCKADE",
+  "WB_678_CONFLICT_AND_VIOLENCE",
+]);
+
 export interface GkgRow {
   date: string;
   url: string;
@@ -141,15 +155,17 @@ export async function parseGkgStream(
         const themesRaw = cols[COL.THEMES_V2] || cols[COL.THEMES_V1] || "";
         const themes = parseThemes(themesRaw);
         const hasCyberTheme = themes.some((t) => CYBER_THEMES.has(t));
-        if (!hasCyberTheme) return;
+        const hasGeoTheme = themes.some((t) => GEOPOLITICAL_THEMES.has(t));
+        if (!hasCyberTheme && !hasGeoTheme) return;
 
         // Title: search EXTRAS (index 26) and AllNames (index 23) for PAGE_TITLE
         const title = findPageTitle(cols[COL.EXTRAS]) || findPageTitle(cols[COL.ALL_NAMES]);
 
         // Secondary content validation: GDELT's CYBER_ATTACK theme is very broad
         // and catches AI news, general crime, entertainment, etc. Require actual
-        // cyber-incident signals in the title or URL.
-        if (!isActualCyberIncident(title, url)) return;
+        // cyber-incident signals in the title or URL. Geopolitical-themed rows
+        // bypass this since they describe physical conflict events.
+        if (hasCyberTheme && !isActualCyberIncident(title, url)) return;
 
         // Locations: prefer V1 (col 9) which has a simpler format:
         //   Type#Name#Country#ADM1#Lat#Lon#FeatureID
