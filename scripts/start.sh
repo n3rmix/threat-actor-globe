@@ -37,7 +37,7 @@ HOST="$HOST" \
 AUTO_INGEST="$AUTO_INGEST" \
 DB_PATH="$DB_PATH" \
 NODE_ENV=production \
-npx tsx server/index.ts > "$LOG_FILE" 2>&1 &
+setsid npx tsx server/index.ts > "$LOG_FILE" 2>&1 &
 
 SERVER_PID=$!
 echo "$SERVER_PID" > "$PID_FILE"
