@@ -10,7 +10,11 @@ interface Props {
 
 export function TimelinePanel({ timeline }: Props) {
   if (timeline.length === 0) {
-    return <section className="timeline timeline--empty">No timeline data</section>;
+    return (
+      <section className="px-3 py-3 text-center text-xs text-muted">
+        No timeline data
+      </section>
+    );
   }
   const maxCount = Math.max(...timeline.map((t) => t.count), 1);
   const width = 360;
@@ -28,14 +32,20 @@ export function TimelinePanel({ timeline }: Props) {
     .join(" ");
 
   return (
-    <section className="timeline">
-      <header className="timeline__header">
-        <h3>Daily volume</h3>
-        <span className="timeline__range">
+    <section className="flex-shrink-0 px-3 py-2.5">
+      <header className="mb-2 flex items-baseline justify-between">
+        <h3 className="m-0 text-[11px] uppercase tracking-wider text-muted">
+          Daily volume
+        </h3>
+        <span className="tnum text-[11px] text-muted">
           {timeline[0].day} → {timeline[timeline.length - 1].day}
         </span>
       </header>
-      <svg className="timeline__svg" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+      <svg
+        className="block h-[90px] w-full"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      >
         <path d={linePath} fill="none" stroke="#5ad1ff" strokeWidth="1.5" />
         {points.map((p, i) => (
           <rect

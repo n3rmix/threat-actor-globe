@@ -18,8 +18,18 @@ import { StatsBar } from "./components/StatsBar.js";
 import { TimelinePanel } from "./components/TimelinePanel.js";
 import { IncidentDrawer } from "./components/IncidentDrawer.js";
 import { IncidentList } from "./components/IncidentList.js";
+import { Button, Select, ListBox, Spinner } from "@heroui/react";
 
 const LOOKBACK_DAYS_DEFAULT = 7;
+const ALL = "__all__";
+
+const LOOKBACKS = [
+  { id: "1", label: "24h" },
+  { id: "3", label: "3d" },
+  { id: "7", label: "7d" },
+  { id: "14", label: "14d" },
+  { id: "30", label: "30d" },
+];
 
 export default function App() {
   const [features, setFeatures] = useState<IncidentFeature[]>([]);
@@ -199,50 +209,85 @@ export default function App() {
   }, [features, selectedIncident, selectIncident]);
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <h1>Threat Actor Globe</h1>
-        <span className="app__subtitle">GDELT live cyber-activity monitor</span>
-        <div className="app__controls">
-          <label>
-            Lookback
-            <select value={lookbackDays} onChange={(e) => setLookbackDays(Number(e.target.value))}>
-              <option value={1}>24h</option>
-              <option value={3}>3d</option>
-              <option value={7}>7d</option>
-              <option value={14}>14d</option>
-              <option value={30}>30d</option>
-            </select>
-          </label>
-          <label>
-            Theme
-            <select value={themeFilter} onChange={(e) => setThemeFilter(e.target.value)}>
-              <option value="">All ({features.length})</option>
-              {themes.map((t) => (
-                <option key={t.name} value={t.name}>
-                  {t.name} ({t.count})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Actor
-            <select value={actorFilter} onChange={(e) => setActorFilter(e.target.value)}>
-              <option value="">All</option>
-              {actors.map((a) => (
-                <option key={a.name} value={a.name}>
-                  {a.name} ({a.count})
-                </option>
-              ))}
-            </select>
-          </label>
-          <button onClick={loadAll} disabled={loading}>
+    <div className="app-shell grid h-screen grid-rows-[auto_1fr]">
+      <header className="relative z-10 flex flex-wrap items-center gap-4 border-b border-border bg-surface px-4 py-2.5">
+        <div className="flex flex-col">
+          <h1 className="text-base font-semibold leading-tight tracking-wide text-foreground">
+            Threat Actor Globe
+          </h1>
+          <span className="text-[11px] text-muted">
+            GDELT live cyber-activity monitor
+          </span>
+        </div>
+
+        <div className="ml-auto flex flex-wrap items-end gap-3">
+          <FilterSelect
+            label="Lookback"
+            ariaLabel="Lookback window"
+            selectedKey={String(lookbackDays)}
+            onSelectionChange={(k) => setLookbackDays(Number(k))}
+            width="w-[100px]"
+          >
+            {LOOKBACKS.map((o) => (
+              <ListBox.Item key={o.id} id={o.id} textValue={o.label}>
+                {o.label}
+              </ListBox.Item>
+            ))}
+          </FilterSelect>
+
+          <FilterSelect
+            label="Theme"
+            ariaLabel="Filter by theme"
+            selectedKey={themeFilter || ALL}
+            onSelectionChange={(k) => setThemeFilter(k === ALL ? "" : String(k))}
+            width="w-[180px]"
+          >
+            <ListBox.Item id={ALL} textValue="All themes">
+              {`All (${features.length})`}
+            </ListBox.Item>
+            {themes.map((t) => (
+              <ListBox.Item key={t.name} id={t.name} textValue={t.name}>
+                <span className="flex items-center justify-between gap-3">
+                  <span className="truncate">{t.name}</span>
+                  <span className="tnum text-[11px] text-muted">{t.count}</span>
+                </span>
+              </ListBox.Item>
+            ))}
+          </FilterSelect>
+
+          <FilterSelect
+            label="Actor"
+            ariaLabel="Filter by actor"
+            selectedKey={actorFilter || ALL}
+            onSelectionChange={(k) => setActorFilter(k === ALL ? "" : String(k))}
+            width="w-[200px]"
+          >
+            <ListBox.Item id={ALL} textValue="All actors">
+              All
+            </ListBox.Item>
+            {actors.map((a) => (
+              <ListBox.Item key={a.name} id={a.name} textValue={a.name}>
+                <span className="flex items-center justify-between gap-3">
+                  <span className="truncate">{a.name}</span>
+                  <span className="tnum text-[11px] text-muted">{a.count}</span>
+                </span>
+              </ListBox.Item>
+            ))}
+          </FilterSelect>
+
+          <Button
+            variant="primary"
+            size="sm"
+            onPress={loadAll}
+            isDisabled={loading}
+            className="font-semibold"
+          >
             {loading ? "Refreshing…" : "Refresh"}
-          </button>
+          </Button>
         </div>
       </header>
 
-      <main className="app__main">
+      <main className="relative z-10 grid min-h-0 grid-cols-[300px_1fr_300px]">
         <CountryFilter
           countries={countries}
           selected={selectedCountries}
@@ -253,16 +298,25 @@ export default function App() {
           }
         />
 
-        <div className="app__globe">
+        <div className="relative min-w-0 bg-background">
           <GlobeView
             layers={layers}
             onMapReady={(m: MLMap) => (mapRef.current = m)}
           />
-          {error && <div className="app__error">{error}</div>}
-          {loading && <div className="app__loading">Loading…</div>}
+          {loading && (
+            <div className="absolute bottom-4 left-4 z-[5] flex items-center gap-2 rounded-md border border-border bg-surface/90 px-3 py-1.5 text-xs backdrop-blur">
+              <Spinner size="sm" />
+              Loading…
+            </div>
+          )}
+          {error && (
+            <div className="absolute bottom-4 left-4 z-[5] rounded-md border border-danger/40 bg-surface/90 px-3 py-1.5 text-xs text-danger backdrop-blur">
+              {error}
+            </div>
+          )}
         </div>
 
-        <aside className="app__side">
+        <aside className="flex flex-col gap-px overflow-hidden border-l border-border bg-surface">
           <StatsBar stats={stats} />
           <TimelinePanel timeline={timeline} />
           <IncidentList
@@ -274,13 +328,51 @@ export default function App() {
         </aside>
       </main>
 
-      {selectedIncident && (
-        <IncidentDrawer
-          feature={selectedIncident}
-          onClose={() => selectIncident(null)}
-        />
-      )}
+      <IncidentDrawer
+        feature={selectedIncident}
+        onClose={() => selectIncident(null)}
+      />
     </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  ariaLabel,
+  selectedKey,
+  onSelectionChange,
+  width,
+  children,
+}: {
+  label: string;
+  ariaLabel: string;
+  selectedKey: string;
+  onSelectionChange: (key: string) => void;
+  width: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="flex flex-col gap-0.5">
+      <span className="text-[10px] uppercase tracking-wider text-muted">
+        {label}
+      </span>
+      <Select
+        aria-label={ariaLabel}
+        selectedKey={selectedKey}
+        onSelectionChange={(k) => onSelectionChange(String(k))}
+        className={width}
+      >
+        <Select.Trigger className="h-7 rounded-md px-2 text-xs">
+          <Select.Value />
+          <Select.Indicator className="ml-auto text-muted">
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </Select.Indicator>
+        </Select.Trigger>
+        <Select.Popover className="max-h-[320px]">
+          <ListBox>{children}</ListBox>
+        </Select.Popover>
+      </Select>
+    </label>
   );
 }
 

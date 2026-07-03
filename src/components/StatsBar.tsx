@@ -12,29 +12,27 @@ interface Props {
 }
 
 export function StatsBar({ stats }: Props) {
-  if (!stats) return <div className="stats-bar stats-bar--empty">No stats</div>;
+  if (!stats) {
+    return (
+      <div className="px-4 py-4 text-center text-xs text-muted">No stats</div>
+    );
+  }
   const tone = stats.avg_tone != null ? stats.avg_tone.toFixed(2) : "—";
   return (
-    <section className="stats-bar">
-      <div className="stat">
-        <span className="stat__label">Incidents</span>
-        <span className="stat__value">{stats.total.toLocaleString()}</span>
-      </div>
-      <div className="stat">
-        <span className="stat__label">Actors</span>
-        <span className="stat__value">{stats.actors.toLocaleString()}</span>
-      </div>
-      <div className="stat">
-        <span className="stat__label">Countries</span>
-        <span className="stat__value">{stats.countries.toLocaleString()}</span>
-      </div>
-      <div className="stat">
-        <span className="stat__label">Avg tone</span>
-        <span className={`stat__value ${toneClass(stats.avg_tone)}`}>{tone}</span>
-      </div>
-      <div className="stat stat--range">
-        <span className="stat__label">Window</span>
-        <span className="stat__value stat__value--sm">
+    <section className="grid grid-cols-4 border-b border-border bg-surface">
+      <Stat label="Incidents" value={stats.total.toLocaleString()} />
+      <Stat label="Actors" value={stats.actors.toLocaleString()} />
+      <Stat label="Countries" value={stats.countries.toLocaleString()} />
+      <Stat
+        label="Avg tone"
+        value={tone}
+        tone={toneTone(stats.avg_tone)}
+      />
+      <div className="col-span-4 flex items-center justify-between border-t border-separator px-3 py-1.5">
+        <span className="text-[10px] uppercase tracking-wider text-muted">
+          Window
+        </span>
+        <span className="tnum text-[11px] text-muted">
           {stats.from_ts ? new Date(stats.from_ts).toISOString().slice(0, 10) : "—"}
           {" → "}
           {stats.to_ts ? new Date(stats.to_ts).toISOString().slice(0, 10) : "—"}
@@ -44,9 +42,34 @@ export function StatsBar({ stats }: Props) {
   );
 }
 
-function toneClass(t: number | null): string {
-  if (t == null) return "";
-  if (t < -3) return "stat__value--bad";
-  if (t > 0) return "stat__value--good";
-  return "";
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "good" | "bad";
+}) {
+  const color =
+    tone === "bad"
+      ? "text-danger"
+      : tone === "good"
+        ? "text-success"
+        : "text-foreground";
+  return (
+    <div className="flex flex-col gap-0.5 border-r border-separator px-3 py-2.5 last:border-r-0">
+      <span className="text-[10px] uppercase tracking-wider text-muted">
+        {label}
+      </span>
+      <span className={`tnum text-base font-semibold ${color}`}>{value}</span>
+    </div>
+  );
+}
+
+function toneTone(t: number | null): "good" | "bad" | undefined {
+  if (t == null) return undefined;
+  if (t < -3) return "bad";
+  if (t > 0) return "good";
+  return undefined;
 }

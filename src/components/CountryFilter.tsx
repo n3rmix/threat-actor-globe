@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { CountryOption } from "../../shared/types.js";
+import { Button, Input, ScrollShadow } from "@heroui/react";
 
 interface Props {
   countries: CountryOption[];
@@ -23,26 +24,38 @@ export function CountryFilter({ countries, selected, onToggle, onClear, onFit }:
   const totalShown = filtered.reduce((sum, c) => sum + c.count, 0);
 
   return (
-    <section className="country-filter">
-      <header className="country-filter__header">
-        <h2>Targeted Countries</h2>
+    <section className="flex min-h-0 flex-col border-r border-border bg-surface">
+      <header className="flex items-center justify-between border-b border-border px-3 py-2.5">
+        <h2 className="m-0 text-[11px] uppercase tracking-wider text-muted">
+          Targeted Countries
+        </h2>
         {selected.size > 0 && (
-          <button className="link-btn" onClick={onClear}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={onClear}
+            className="h-auto px-1.5 py-0.5 text-[11px] text-muted"
+          >
             Clear ({selected.size})
-          </button>
+          </Button>
         )}
       </header>
 
-      <input
-        className="country-filter__search"
-        placeholder="Search country…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="relative m-2">
+        <Input
+          aria-label="Search countries"
+          placeholder="Search country…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="h-7 text-xs"
+        />
+      </div>
 
-      <div className="country-filter__list">
+      <ScrollShadow className="flex-1 min-h-0 px-2 pb-2" size={24}>
         {filtered.length === 0 && (
-          <div className="country-filter__empty">No data yet. Run ingest.</div>
+          <div className="py-5 text-center text-xs text-muted">
+            No data yet. Run ingest.
+          </div>
         )}
         {filtered.map((c) => {
           const active = selected.has(c.code);
@@ -50,30 +63,39 @@ export function CountryFilter({ countries, selected, onToggle, onClear, onFit }:
           return (
             <button
               key={c.code}
-              className={`country-row ${active ? "country-row--active" : ""}`}
               onClick={() => onToggle(c.code)}
               title={`${c.name} (${c.code}) — ${c.count} incidents`}
+              className={`group grid w-full grid-cols-[20px_1fr_56px_auto] items-center gap-2 border-b border-separator px-2 py-1.5 text-left text-xs transition-colors ${
+                active
+                  ? "bg-accent/10 shadow-[inset_2px_0_0_var(--accent)]"
+                  : "hover:bg-surface-secondary"
+              }`}
             >
-              <span className="country-row__flag">{flagEmoji(c.code)}</span>
-              <span className="country-row__name" title={c.name}>
+              <span className="text-sm">{flagEmoji(c.code)}</span>
+              <span className="truncate text-foreground" title={c.name}>
                 {c.name}
               </span>
-              <span className="country-row__bar">
+              <span className="h-1 overflow-hidden rounded-full bg-foreground/10">
                 <span
-                  className="country-row__bar-fill"
+                  className="block h-full rounded-full bg-accent transition-all"
                   style={{ width: `${Math.max(2, pct)}%` }}
                 />
               </span>
-              <span className="country-row__count">{c.count}</span>
+              <span className="tnum text-right text-muted">{c.count}</span>
             </button>
           );
         })}
-      </div>
+      </ScrollShadow>
 
       {onFit && selected.size > 0 && (
-        <button className="country-filter__fit" onClick={() => onFit(getWorldBounds())}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onPress={() => onFit(getWorldBounds())}
+          className="mx-3 mb-3"
+        >
           Zoom to selection
-        </button>
+        </Button>
       )}
     </section>
   );
