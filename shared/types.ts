@@ -1,6 +1,7 @@
 export interface Incident {
   id: number;
   actor: string | null;
+  actor_country: string | null;
   victim_lat: number;
   victim_lon: number;
   victim_country: string | null;

@@ -170,6 +170,16 @@ for (const actor of THREAT_ACTORS) {
   }
 }
 
+const ACTOR_COUNTRY_LOOKUP = new Map<string, string>();
+for (const actor of THREAT_ACTORS) {
+  ACTOR_COUNTRY_LOOKUP.set(actor.canonical.toLowerCase(), actor.country);
+}
+
+export function getActorCountry(canonical: string | null): string | null {
+  if (!canonical) return null;
+  return ACTOR_COUNTRY_LOOKUP.get(canonical.toLowerCase()) ?? null;
+}
+
 // Aliases that are common English words — need cyber context to match
 const GENERIC_WORD_ALIASES = new Set([
   "predator", "cuba", "royal", "play", "akira", "medusa", "cactus",

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { getDb } from "./db.js";
 import { runOnce } from "./ingest.js";
+import { getActorCountry } from "./threatActors.js";
 import type {
   CountryOption,
   IncidentFeatureCollection,
@@ -92,6 +93,7 @@ app.get("/api/incidents", async (req) => {
       properties: {
         id: r.id as number,
         actor: (r.actor as string) ?? null,
+        actor_country: getActorCountry((r.actor as string) ?? null),
         victim_country: (r.victim_country as string) ?? null,
         victim_country_code: (r.victim_country_code as string) ?? null,
         source_country: (r.source_country as string) ?? null,

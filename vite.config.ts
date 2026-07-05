@@ -22,8 +22,6 @@ export default defineConfig({
             "@deck.gl/aggregation-layers",
             "@deck.gl/mapbox",
           ],
-          maplibre: ["maplibre-gl"],
-          react: ["react", "react-dom"],
         },
       },
     },

@@ -81,30 +81,11 @@
   font-feature-settings: "tnum";
 }
 
-/* ---- MapLibre / deck.gl container ---- */
+/* ---- deck.gl GlobeView container ---- */
 .globe-view {
   width: 100%;
   height: 100%;
-}
-
-.maplibregl-ctrl-group {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius) !important;
-  overflow: hidden;
-}
-.maplibregl-ctrl button {
-  background: transparent !important;
-}
-.maplibregl-ctrl button:not(:disabled):hover {
-  background: var(--surface-secondary) !important;
-}
-.maplibregl-ctrl button:focus-visible {
-  outline: 2px solid var(--accent) !important;
-  outline-offset: -2px;
-}
-.maplibregl-ctrl-icon {
-  filter: invert(0.85);
+  position: relative;
 }
 
 /* Subtle scanline-free ambient: a faint top glow on the app shell */
@@ -138,4 +119,21 @@
 }
 *::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* Star field twinkle */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--star-opacity, 0.3);
+  }
+  50% {
+    opacity: calc(var(--star-opacity, 0.3) * 0.3);
+  }
+}
+
+/* Deck.gl canvas should fill the container */
+.globe-view canvas {
+  position: relative !important;
+  z-index: 1;
 }

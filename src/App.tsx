@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ScatterplotLayer } from "@deck.gl/layers";
+import { ScatterplotLayer, ArcLayer } from "@deck.gl/layers";
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
-import type { Map as MLMap } from "maplibre-gl";
 import type { IncidentFeature, CountryOption } from "../shared/types.js";
+import { getCentroid } from "../shared/centroids.js";
 import {
   fetchCountries,
   fetchActors,
@@ -13,6 +13,7 @@ import {
   subscribeToStream,
 } from "./api/client.js";
 import { GlobeView } from "./components/GlobeView.js";
+import type { GlobeViewHandle } from "./components/GlobeView.js";
 import { CountryFilter } from "./components/CountryFilter.js";
 import { StatsBar } from "./components/StatsBar.js";
 import { TimelinePanel } from "./components/TimelinePanel.js";
@@ -52,18 +53,20 @@ export default function App() {
   } | null>(null);
   const [timeline, setTimeline] = useState<Array<{ day: string; count: number; avg_tone: number | null }>>([]);
   const [selectedIncident, setSelectedIncident] = useState<IncidentFeature | null>(null);
-  const mapRef = useRef<MLMap | null>(null);
+  const globeRef = useRef<GlobeViewHandle>(null);
+  const [pulseTick, setPulseTick] = useState(0);
+
+  // Animate pulsing on recent incidents
+  useEffect(() => {
+    const interval = setInterval(() => setPulseTick((t) => (t + 1) % 1000), 80);
+    return () => clearInterval(interval);
+  }, []);
 
   const selectIncident = useCallback((feature: IncidentFeature | null) => {
     setSelectedIncident(feature);
     if (feature) {
       const [lon, lat] = feature.geometry.coordinates;
-      mapRef.current?.flyTo({
-        center: [lon, lat],
-        zoom: Math.max(mapRef.current?.getZoom() ?? 3, 4),
-        duration: 1200,
-        essential: true,
-      });
+      globeRef.current?.flyTo(lon, lat, undefined, 1200);
     }
   }, []);
 
@@ -139,10 +142,38 @@ export default function App() {
   const clearCountries = useCallback(() => setSelectedCountries(new Set()), []);
 
   const layers = useMemo(() => {
+    const now = Date.now();
     const points = features.map((f) => ({
       position: [f.geometry.coordinates[0], f.geometry.coordinates[1], 0],
       ...f.properties,
+      ageHours: (now - new Date(f.properties.published_at).getTime()) / 3_600_000,
     }));
+
+    // Build arc data from attributed incidents
+    const arcs = points
+      .filter((p) => p.actor_country)
+      .map((p) => {
+        const origin = getCentroid(p.actor_country);
+        if (!origin) return null;
+        const [originLat, originLon] = origin;
+        const [victimLon, victimLat] = p.position;
+        return {
+          sourcePosition: [originLon, originLat, 0],
+          targetPosition: [victimLon, victimLat, 0],
+          tone: p.tone,
+          ageHours: p.ageHours,
+          id: p.id,
+        };
+      })
+      .filter(Boolean) as Array<{
+      sourcePosition: [number, number, number];
+      targetPosition: [number, number, number];
+      tone: number | null;
+      ageHours: number;
+      id: number;
+    }>;
+
+    const pulse = 0.5 + 0.5 * Math.sin((pulseTick / 1000) * Math.PI * 2);
 
     return [
       new HexagonLayer({
@@ -160,17 +191,50 @@ export default function App() {
           [239, 138, 98],
           [178, 24, 43],
         ],
-        opacity: 0.55,
+        opacity: 0.5,
         pickable: false,
       }),
+
+      new ArcLayer({
+        id: "actor-arcs",
+        data: arcs,
+        greatCircle: true,
+        numSegments: 72,
+        getSourcePosition: (d: { sourcePosition: [number, number, number] }) => d.sourcePosition,
+        getTargetPosition: (d: { targetPosition: [number, number, number] }) => d.targetPosition,
+        getSourceColor: (d: { ageHours: number }) =>
+          d.ageHours < 24 ? [90, 209, 255, 200] : [90, 209, 255, 80],
+        getTargetColor: (d: { tone: number | null }) => {
+          if (d.tone != null && d.tone < -3) return [255, 91, 91, 220];
+          if (d.tone != null && d.tone < 0) return [245, 158, 11, 220];
+          return [74, 222, 128, 220];
+        },
+        getWidth: (d: { ageHours: number }) => (d.ageHours < 24 ? 2.5 : 1),
+        widthUnits: "pixels" as const,
+        widthMinPixels: 0.5,
+        widthMaxPixels: 4,
+        opacity: 0.7,
+        pickable: false,
+      }),
+
       new ScatterplotLayer({
         id: "incident-points",
         data: points,
         getPosition: (d: { position: [number, number, number] }) => d.position,
-        getRadius: (d: { tone: number | null }) => (d.tone != null ? Math.min(80000, Math.abs(d.tone) * 5000) : 20000),
+        getRadius: (d: { tone: number | null; ageHours: number }) => {
+          const base = d.tone != null ? Math.min(80000, Math.abs(d.tone) * 5000) : 20000;
+          if (d.ageHours < 6) return base * (1 + pulse * 0.4);
+          return base;
+        },
         radiusMinPixels: 3,
         radiusMaxPixels: 18,
-        getFillColor: (d: { tone: number | null }) => toneColor(d.tone),
+        getFillColor: (d: { tone: number | null; ageHours: number }) => {
+          const color = toneColor(d.tone);
+          if (d.ageHours < 6) {
+            return [color[0], color[1], color[2], Math.min(255, color[3] + pulse * 30)];
+          }
+          return color;
+        },
         opacity: 0.85,
         stroked: true,
         getLineColor: [255, 255, 255, 120],
@@ -180,6 +244,7 @@ export default function App() {
           if (object) selectIncident(buildFeatureFromPoint(object));
         },
       }),
+
       ...(selectedIncident
         ? [
             new ScatterplotLayer({
@@ -194,7 +259,7 @@ export default function App() {
                 },
               ],
               getPosition: (d: { position: [number, number, number] }) => d.position,
-              getRadius: 120000,
+              getRadius: 120000 + pulse * 40000,
               radiusMinPixels: 12,
               radiusMaxPixels: 40,
               getFillColor: [90, 209, 255, 90],
@@ -206,7 +271,7 @@ export default function App() {
           ]
         : []),
     ];
-  }, [features, selectedIncident, selectIncident]);
+  }, [features, selectedIncident, selectIncident, pulseTick]);
 
   return (
     <div className="app-shell grid h-screen grid-rows-[auto_1fr]">
@@ -294,14 +359,14 @@ export default function App() {
           onToggle={toggleCountry}
           onClear={clearCountries}
           onFit={(bounds: [[number, number], [number, number]]) =>
-            mapRef.current?.fitBounds(bounds, { padding: 40 })
+            globeRef.current?.fitBounds(bounds, { padding: 40 })
           }
         />
 
         <div className="relative min-w-0 bg-background">
           <GlobeView
+            ref={globeRef}
             layers={layers}
-            onMapReady={(m: MLMap) => (mapRef.current = m)}
           />
           {loading && (
             <div className="absolute bottom-4 left-4 z-[5] flex items-center gap-2 rounded-md border border-border bg-surface/90 px-3 py-1.5 text-xs backdrop-blur">
